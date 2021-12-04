@@ -20,6 +20,12 @@ commands:
           name: install_failed
           command: echo "[X] Error!! Could not install dependencies"
           when: on_fail
+      - run:
+          name: check stack events
+          command: | 
+            aws cloudformation describe-stack-events \
+              --stack-name circleci-infra-create-${CIRCLE_WORKFLOW_ID:0:5}
+          when: on_fail
 
 # Define the jobs we want to run for this project
 jobs:
@@ -39,7 +45,7 @@ jobs:
 
 # Sequential workflow
 workflows:
-  greet_world:
+  create_ec2_stack:
     jobs:
       - print_hello_world
       - create_infrastructure
