@@ -109,10 +109,10 @@ jobs:
     steps:
       - checkout
       - run: |
-        aws cloudformation deploy \
-          --template-file cloudfront.yml \
-          --stack-name production-distro \
-          --parameter-overrides PipelineID=circle-ci-promote-dewa 
+          aws cloudformation deploy \
+            --template-file cloudfront.yml \
+            --stack-name production-distro \
+            --parameter-overrides PipelineID=circle-ci-promote-dewa 
       - run:
           name: cloudfront creation fail
           command: echo "[X] Failed tO create cloudfront"
