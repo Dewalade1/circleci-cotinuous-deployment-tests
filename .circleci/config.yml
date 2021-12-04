@@ -102,7 +102,6 @@ jobs:
             fi
       - rollback_failed_commit
 
-
   create_cloudfront:
     docker:
       - image: amazon/aws-cli
