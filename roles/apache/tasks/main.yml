@@ -1,0 +1,13 @@
+---
+- name: "install apache2 server OS"
+  become: true
+  apt:
+    name: ["apache2"]
+    state: latest
+    update_cache: yes
+
+- name: "install helloworld index page"
+  copy:
+    src: index.html
+    dest: /var/www/html/index.html
+    backup: yes

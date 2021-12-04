@@ -28,6 +28,19 @@ commands:
           when: on_fail
       - rollback_failed_commit
 
+  fetch_ec2_ip:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run: touch ~/inventory
+      - run: echo [all] > ~/inventory
+      - run: aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> inventory
+      - run:
+          name: ip fetch fail
+          command: echo "[X] Failed TO fetch web server IP addresses!!"
+          when: on_fail
+
   rollback_failed_commit:
     description: rolls back most recent commit due to failure by destroying environment
     steps:
@@ -95,9 +108,12 @@ workflows:
     jobs:
       - print_hello_world
       - create_infrastructure
-      - configure_infrastructure:
+      - fetch_ec2_ip:
           requires:
             - create_infrastructure
+      - configure_infrastructure:
+          requires:
+            - fetch_ec2_ip
       - url_smoke_test:
           requires:
             - configure_infrastructure
