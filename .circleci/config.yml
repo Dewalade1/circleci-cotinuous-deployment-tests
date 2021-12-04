@@ -57,7 +57,7 @@ jobs:
 
   fetch_ec2_ip:
     docker:
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli
     steps:
       - checkout
       - run: touch ~/inventory
@@ -65,7 +65,7 @@ jobs:
       - run: aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> inventory
       - run:
           name: ip fetch fail
-          command: echo "[X] Failed TO fetch web server IP addresses!!"
+          command: echo "[X] Failed tO fetch web server IP addresses!!"
           when: on_fail
 
   # Exercise: Config and Deployment
@@ -104,7 +104,7 @@ jobs:
 
 # Sequential workflow
 workflows:
-  smoke_test_builds:
+  cd_pipeline:
     jobs:
       - print_hello_world
       - create_infrastructure
