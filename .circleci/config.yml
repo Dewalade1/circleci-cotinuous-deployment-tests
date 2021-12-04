@@ -126,12 +126,12 @@ jobs:
     steps:
       - checkout
       - run:
-         name: Execute bucket.yml - Create Cloudformation Stack
-         command: |
-           aws cloudformation deploy \
-           --template-file bucket.yml \
-           --stack-name frontend-stack-${CIRCLE_WORKFLOW_ID:0:7} \
-           --parameter-overrides MyBucketName="frontendBucket-${CIRCLE_WORKFLOW_ID:0:7}"
+          name: Execute bucket.yml - Create Cloudformation Stack
+          command: |
+            aws cloudformation deploy \
+              --template-file bucket.yml \
+              --stack-name frontend-stack-${CIRCLE_WORKFLOW_ID:0:7} \
+              --parameter-overrides MyBucketName="frontendBucket-${CIRCLE_WORKFLOW_ID:0:7}"
       - run: aws s3 sync . s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} --delete
 
   # Fetch and save the pipeline ID (bucket ID) responsible for the last release.
@@ -200,7 +200,7 @@ workflows:
           requires:
             - configure_infrastructure
       - create_cloudfront
-      - create_and_deploy_front_end
+      - create_and_deploy_front_end:
           requires:
             - create_cloudfront
       - promote_to_production:
