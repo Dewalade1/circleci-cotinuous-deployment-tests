@@ -12,13 +12,13 @@ commands:
       - run:
           name: Create Cloudformation Stack for EC2
           command: |
-            aws cloudformation create-stacks \
+            aws cloudformation deploy \
               --template-file create_ec2.yml \
               --stack-name circleci-infra-create-${CIRCLE_WORKFLOW_ID:0:5} \
               --region us-east-1
       - run:
-          name: install_failed
-          command: echo "[X] Error!! Could not install dependencies"
+          name: stack_deploy_fail
+          command: echo "[X] stack deploy failed. Running stack events check"
           when: on_fail
       - run:
           name: check stack events
@@ -26,6 +26,7 @@ commands:
             aws cloudformation describe-stack-events \
               --stack-name circleci-infra-create-${CIRCLE_WORKFLOW_ID:0:5}
           when: on_fail
+      - rollback_failed_commit
 
   rollback_failed_commit:
     description: rolls back most recent commit due to failure by destroying environment
@@ -68,7 +69,7 @@ jobs:
           command: apk add --update ansible
       - run:
           name: Run Playbook and Configure server
-          command: ansible-playbook -i inventory ansible.cfg
+          command: ansible-playbook -i inventory.txt setup_server_on_ec2.yml
 
   url_smoke_test:
     docker:
@@ -93,7 +94,11 @@ workflows:
   smoke_test_builds:
     jobs:
       - print_hello_world
-      # - create_infrastructure
-      # - configure_infrastructure
-      - url_smoke_test
+      - create_infrastructure
+      - configure_infrastructure:
+          requires:
+            - create_infrastructure
+      - url_smoke_test:
+          requires:
+            - configure_infrastructure
       
