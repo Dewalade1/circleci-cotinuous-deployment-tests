@@ -12,7 +12,7 @@ commands:
       - run:
           name: Create Cloudformation Stack for EC2
           command: |
-            aws cloudformation deploy \
+            aws cloudformation create-stacks \
               --template-file create_ec2.yml \
               --stack-name circleci-infra-create-${CIRCLE_WORKFLOW_ID:0:5} \
               --region us-east-1
@@ -43,9 +43,27 @@ jobs:
         - checkout
         - create_ec2
 
+  # Exercise: Config and Deployment
+  configure_infrastructure: 
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+              # You can get this ID in the section where you registered the SSH Key
+              fingerprints: ["3c:2d:ac:b9:49:4c:37:11:6d:1e:f0:66:67:a6:11:07"] 
+      - run:
+          name: Install Ansible
+          command: apk add --update ansible
+
+      - run:
+          name: Run Playbook and Configure server
+          command: ansible-playbook -i inventory ansible.cfg
+
 # Sequential workflow
 workflows:
-  create_ec2_stack:
+  create_and_config_ec2_stack:
     jobs:
       - print_hello_world
       - create_infrastructure
+      - configure_infrastructure
