@@ -27,7 +27,8 @@ commands:
               --stack-name circleci-infra-create-${CIRCLE_WORKFLOW_ID:0:5}
           when: on_fail
 
-    destroy_stack:
+  rollback_failed_commit:
+    description: rolls back most recent commit due to failure by destroying environment
     steps:
       - run:
           name: Destroy environment
@@ -35,7 +36,7 @@ commands:
           # ${CIRCLE_WORKFLOW_ID:0:5} takes the first 5 chars of the variable CIRCLE_CI_WORKFLOW_ID 
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+            aws cloudformation delete-stack --stack-name circleci-infra-create-${CIRCLE_WORKFLOW_ID:0:5}
 
 # Define the jobs we want to run for this project
 jobs:
@@ -85,7 +86,7 @@ jobs:
               else
                 return 1
               fi
-        - destroy_environment
+        - rollback_failed_commit
 
 # Sequential workflow
 workflows:
